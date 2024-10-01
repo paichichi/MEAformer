@@ -19,9 +19,12 @@
 <p align="center"><i><b>👆 Click to see the Video</b></i></p>
 
 ## 🔔 News
+- **`2024-03` Our paper [NativE: Multi-modal Knowledge Graph Completion in the Wild](https://www.techrxiv.org/doi/full/10.36227/techrxiv.171259566.60211714)  [[`Repo`](https://github.com/zjukg/NATIVE)] is accepted by SIGIR 2024 !.**
 - **`2024-02` We preprint our Survey [Knowledge Graphs Meet Multi-Modal Learning: A Comprehensive Survey](http://arxiv.org/abs/2402.05391)  [[`Repo`](https://github.com/zjukg/KG-MM-Survey)].**
-- **`2024-01` Our paper [Revisit and Outstrip Entity Alignment: A Perspective of Generative Models](https://arxiv.org/abs/2305.14651) is accepted by ICLR 2024 !**
-- **`2023-10` We preprint our paper [Universal Multi-modal Entity Alignment via Iteratively Fusing Modality Similarity Paths](https://arxiv.org/abs/2310.05364) !**
+- **`2024-02` We release the [[`Repo`](https://github.com/zjukg/AdaMF-MAT)] for our paper [Unleashing the Power of Imbalanced Modality Information for Multi-modal Knowledge Graph Completion
+](https://arxiv.org/pdf/2402.15444v1.pdf), COLING 2024**
+- **`2024-02` We preprint our Paper [ASGEA: Exploiting Logic Rules from Align-Subgraphs for Entity Alignment](https://arxiv.org/abs/2402.11000) [[`Repo`](https://github.com/lyyf2002/ASGEA)].**
+- **`2024-01` Our paper [Revisit and Outstrip Entity Alignment: A Perspective of Generative Models](https://arxiv.org/abs/2305.14651) [[Repo](https://github.com/zjukg/GEEA)] is accepted by ICLR 2024 !**
 - **`2023-07` We release the [[Repo](https://github.com/zjukg/UMAEA)] for our paper: [Rethinking Uncertainly Missing and Ambiguous Visual Modality in Multi-Modal Entity Alignment](https://arxiv.org/abs/2307.16210) ! [[`Slide`](https://github.com/zjukg/UMAEA/blob/main/Slide/Chen-ISWC-2023.pdf)], ISWC 2023** 
 - **`2023-04` We release the complete code and [data](https://drive.google.com/file/d/1VIWcc3KDcLcRImeSrF2AyhetBLq_gsnx/view?usp=sharing) for [MEAformer](https://github.com/zjukg/MEAformer) ! [[`Slide`](https://github.com/zjukg/MEAformer/blob/main/Slide/MEAformer-Slide.pdf)] [[`Vedio`](https://youtu.be/5Kjzg0EPavI)], ACM MM 2023**
 
@@ -35,7 +38,7 @@ pip install -r requirement.txt
 - Python (>= 3.7)
 - [PyTorch](http://pytorch.org/) (>= 1.6.0)
 - numpy (>= 1.19.2)
-- [Transformers](http://huggingface.co/transformers/) (>= 4.21.3)
+- [Transformers](http://huggingface.co/transformers/) (== 4.21.3)
 - easydict (>= 1.10)
 - unidecode (>= 1.3.6)
 - tensorboard (>= 2.11.0)
@@ -120,7 +123,7 @@ ROOT
     └── MEAformer
 ```
 - Case analysis Jupyter script: [GoogleDrive](https://drive.google.com/file/d/1AUTo7FhzvRYTsLTrDFOW1NVbsTFlGraM/view?usp=sharing) (**180M**) base on the raw images of entities (need to be unzip). I hope this gives you a good understanding of this dataset.
-- **[ Option ]** The raw **Relations** & **Attributes** appeared in DBP15k and case from **MEAformer** can be downloaded from [`Baidu Cloud Drive`](https://pan.baidu.com/s/18ZFWzHnAtPTfVlVqt6J9QA ) (**150M**) with the pass code **`mmea`**. 
+- **[ Option ]** The raw **Relations** & **Attributes** appeared in DBP15k and case from **MEAformer** can be downloaded from [`Huggingface`](https://huggingface.co/datasets/HackCz/DBP15K_raw/blob/main/DBP_raw.zip) (**150M**).
 - **[ Option ]** The raw **images** of entities appeared in DBP15k can be downloaded from [`Baidu Cloud Drive`](https://pan.baidu.com/s/1nRpSLJtTUEXDD4cgfSZZQQ) (**50GB**) with the pass code **`mmea`**. All images are saved as title-image pairs in dictionaries and can be accessed with the following code :
 ```python
 import pickle
