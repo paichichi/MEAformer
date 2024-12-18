@@ -101,7 +101,7 @@ class MEAformer(nn.Module):
 
         loss_dic = {"joint_Intra_modal": loss_joi.item(), "Intra_modal": in_loss.item()}
         output = {"loss_dic": loss_dic, "emb": joint_emb}
-        return loss_all, output
+        return loss_all, output, [gph_emb, img_emb, rel_emb, att_emb]
 
     def generate_hidden_emb(self, hidden):
         gph_emb = F.normalize(hidden[:, 0, :].squeeze(1))

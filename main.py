@@ -1,5 +1,7 @@
 import os
 import os.path as osp
+
+import pandas as pd
 import torch
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
@@ -27,6 +29,7 @@ import torch.nn.functional as F
 import scipy
 import gc
 import copy
+import csv
 
 
 class Runner:
@@ -185,51 +188,95 @@ class Runner:
         self.early_stop_count = self.early_stop_init
         self.stage = 0
 
-        with tqdm(total=self.args.epoch) as _tqdm:
-            for i in range(self.args.epoch):
-                # _tqdm.set_description(f'Train | epoch {i} Loss {self.loss_log.get_loss():.5f} Acc {self.loss_log.get_acc()*100:.3f}%')
-                if self.args.dist and not self.args.only_test:
-                    self.train_sampler.set_epoch(i)
-                # -------------------------------
-                self.epoch = i
-                if self.args.il and (self.epoch == self.args.il_start and self.stage == 0) or (self.early_stop_count <= 0 and self.epoch <= self.args.il_start):
-                    if self.early_stop_count <= 0:
-                        logger.info(f"Early stop in epoch {self.epoch}... Begin iteration....")
-                    self.stage = 1
-                    self.early_stop_init = 2000
-                    self.early_stop_count = self.early_stop_init
+        model_path = 'MEAformer_model_parameters_FBDB15K_0.2.pth'
+        # model_path = 'MEAformer_model_parameters_FBYG15K_0.2.pth'
+        device = torch.device('cuda:0')
 
-                    self.eval_epoch = 1
+        self.model.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
+        train_path = 'C:/Users/96446/Desktop/MMKG/others/FBDB_batch.csv'
+        # train_path = 'C:/Users/96446/Desktop/MMKG/others/FBYG_batch.csv'
 
-                    self.step = 1
-                    self.args.lr = self.args.lr / 5
-                    self.optim_init(self.args, total_epoch=(self.args.epoch - self.args.il_start) * 3)
-                    if self.best_model_wts is not None:
-                        self.logger.info("load from the best model before IL... ")
-                        self.model.load_state_dict(self.best_model_wts)
-                    name = self._save_name_define()
-                    self.test(save_name=f"{name}_test_ep{self.args.epoch}_no_iter")
-                    if self.rank == 0:
-                        if not self.args.only_test and self.args.save_model:
-                            self._save_model(self.model, input_name=f"{name}_non_iter")
+        train_data = pd.read_csv(train_path)
 
-                if self.stage == 1 and (self.epoch + 1) % self.args.semi_learn_step == 0 and self.args.il:
-                    self.il_for_ea()
+        train_left = train_data['x_item'].to_numpy()
+        train_right = train_data['y_item'].to_numpy()
 
-                if self.stage == 1 and (self.epoch + 1) % (self.args.semi_learn_step * 10) == 0 and len(self.new_links) != 0 and self.args.il:
-                    self.il_for_data_ref()
+        test_left = self.eval_left
+        test_right = self.eval_right
 
-                self.train(_tqdm)
-                self.loss_log.update(self.curr_loss)
-                self.loss_item = self.loss_log.get_loss()
-                _tqdm.set_description(f'Train | Ep [{self.epoch}/{self.args.epoch}] Step [{self.step}/{self.args.total_steps}] LR [{self.lr:.5f}] Loss {self.loss_log.get_loss():.5f} ')
-                self.update_loss_log()
-                if (i + 1) % self.args.eval_epoch == 0:
-                    self.eval()
-                _tqdm.update(1)
-                if self.stage == 1 and self.early_stop_count <= 0:
-                    logger.info(f"Early stop in epoch {self.epoch}")
-                    break
+        test_left = test_left.cpu().numpy()
+        test_right = test_right.cpu().numpy()
+
+        train_set = np.column_stack((train_left, train_right))
+        test_set = np.column_stack((test_left, test_right))
+        combined_set = np.vstack((train_set, test_set))
+
+        self.model.eval()
+        with torch.no_grad():
+            loss, output, sub_embs = self.model(train_set)
+            final_emb, weight_norm = self.model.joint_emb_generat()
+
+        distance = torch.mean((final_emb[2151].view(1, -1) - final_emb) ** 2, dim=1)
+        sorted_distance, sorted_indices = torch.sort(distance, dim=0, descending=False)
+
+        with open('sorted_distances.csv', mode='w', newline='') as file:
+            writer = csv.writer(file)
+
+            # 写入表头
+            writer.writerow(['rank', 'sorted_distance', 'sorted_idx'])
+
+            # 将每个排序的距离和它们的排名保存
+            for rank, (dist, idx) in enumerate(zip(sorted_distance, sorted_indices)):
+                writer.writerow([rank + 1, dist.item(), idx.item()])  # rank + 1 表示排名从1开始
+
+        print("Sorted distances and indices have been saved.")
+
+        # with tqdm(total=self.args.epoch) as _tqdm:
+        #     for i in range(self.args.epoch):
+        #         # _tqdm.set_description(f'Train | epoch {i} Loss {self.loss_log.get_loss():.5f} Acc {self.loss_log.get_acc()*100:.3f}%')
+        #         if self.args.dist and not self.args.only_test:
+        #             self.train_sampler.set_epoch(i)
+        #         # -------------------------------
+        #         self.epoch = i
+        #         if self.args.il and (self.epoch == self.args.il_start and self.stage == 0) or (self.early_stop_count <= 0 and self.epoch <= self.args.il_start):
+        #             if self.early_stop_count <= 0:
+        #                 logger.info(f"Early stop in epoch {self.epoch}... Begin iteration....")
+        #             self.stage = 1
+        #             self.early_stop_init = 2000
+        #             self.early_stop_count = self.early_stop_init
+        #
+        #             self.eval_epoch = 1
+        #
+        #             self.step = 1
+        #             self.args.lr = self.args.lr / 5
+        #             self.optim_init(self.args, total_epoch=(self.args.epoch - self.args.il_start) * 3)
+        #             if self.best_model_wts is not None:
+        #                 self.logger.info("load from the best model before IL... ")
+        #                 self.model.load_state_dict(self.best_model_wts)
+        #             name = self._save_name_define()
+        #             self.test(save_name=f"{name}_test_ep{self.args.epoch}_no_iter")
+        #             if self.rank == 0:
+        #                 if not self.args.only_test and self.args.save_model:
+        #                     self._save_model(self.model, input_name=f"{name}_non_iter")
+        #
+        #         if self.stage == 1 and (self.epoch + 1) % self.args.semi_learn_step == 0 and self.args.il:
+        #             self.il_for_ea()
+        #
+        #         if self.stage == 1 and (self.epoch + 1) % (self.args.semi_learn_step * 10) == 0 and len(self.new_links) != 0 and self.args.il:
+        #             self.il_for_data_ref()
+        #
+        #         self.train(_tqdm)
+        #         self.loss_log.update(self.curr_loss)
+        #         self.loss_item = self.loss_log.get_loss()
+        #         _tqdm.set_description(f'Train | Ep [{self.epoch}/{self.args.epoch}] Step [{self.step}/{self.args.total_steps}] LR [{self.lr:.5f}] Loss {self.loss_log.get_loss():.5f} ')
+        #         self.update_loss_log()
+        #         if (i + 1) % self.args.eval_epoch == 0:
+        #             self.eval()
+        #         _tqdm.update(1)
+        #         if self.stage == 1 and self.early_stop_count <= 0:
+        #             logger.info(f"Early stop in epoch {self.epoch}")
+        #             break
+                # torch.save(self.model.state_dict(), "MEAformer_model_parameters_FBYG15K_0.2.pth")
 
         name = self._save_name_define()
         if self.best_model_wts is not None:
@@ -277,7 +324,7 @@ class Runner:
         accumulation_steps = self.args.accumulation_steps
         # torch.cuda.empty_cache()
         for batch in self.train_dataloader:
-            loss, output = self.model(batch)
+            loss, output, sub_embs = self.model(batch)
             loss = loss / accumulation_steps
             self.scaler.scale(loss).backward()
             if self.args.dist:
@@ -373,6 +420,26 @@ class Runner:
                 final_emb = self.model.joint_emb_generat()
                 weight_norm = None
             final_emb = F.normalize(final_emb)
+        print('weight_norm', weight_norm[13])
+        #
+        # weight_norm = weight_norm.cpu().tolist()
+        # with open('FBYG15k_weight_norms.csv', mode='w', newline='') as file:
+        #     writer = csv.writer(file)
+        #
+        #     # 写入表头
+        #     writer.writerow(['idx', 'img', 'attr', 'rel', 'graph'])
+        #
+        #     # 遍历 weight_norm，每一项是一个列表，例如 [img, attr, rel, graph]
+        #     for idx, norm_values in enumerate(weight_norm):
+        #         # 确保 norm_values 是一个长度为 4 的列表
+        #         if len(norm_values) == 4:
+        #             writer.writerow([idx] + norm_values)  # 将 idx 和 norm_values 合并成一行写入文件
+        #         else:
+        #             print(f"Warning: Data at idx {idx} is not of length 4, skipping.")
+        #
+        # # 输出完成提示
+        # print('CSV 文件已保存为 "weight_norms.csv"')
+        # weight_norm = torch.tensor(weight_norm)
 
         # pdb.set_trace()
         top_k = [1, 10, 50]
@@ -393,9 +460,15 @@ class Runner:
             test_left_np = test_left.cpu().numpy()
             test_right_np = test_right.cpu().numpy()
             to_write.append(["idx", "rank", "query_id", "gt_id", "ret1", "ret2", "ret3", "v1", "v2", "v3"])
+
+        non_first_ranked_idx = []
         for idx in range(test_left.shape[0]):
             values, indices = torch.sort(distance[idx, :], descending=False)
             rank = (indices == idx).nonzero(as_tuple=False).squeeze().item()
+
+            if rank != 0:  # 如果不在第一位，则记录该 idx
+                non_first_ranked_idx.append(test_left[idx].item())
+
             mean_l2r += (rank + 1)
             mrr_l2r += 1.0 / (rank + 1)
             for i in range(len(top_k)):
@@ -405,8 +478,12 @@ class Runner:
                 indices = indices.cpu().numpy()
                 to_write.append([idx, rank, test_left_np[idx], test_right_np[idx], test_right_np[indices[0]], test_right_np[indices[1]],
                                  test_right_np[indices[2]], round(values[0].item(), 4), round(values[1].item(), 4), round(values[2].item(), 4)])
+        # with open('FBYG15K_predicted_wrong_xy.csv', mode='w', newline='') as file:
+        #     writer = csv.writer(file)
+        #     for idx in non_first_ranked_idx:
+        #         writer.writerow([idx])
+
         if last_epoch:
-            import csv
             if save_name == "":
                 save_name = self.args.model_name
             save_pred_path = osp.join(self.args.data_path, self.args.model_name, f"{save_name}_pred")
@@ -422,14 +499,23 @@ class Runner:
                 with open(osp.join(save_pred_path, f"{self.args.model_name}_{self.args.data_choice}_{self.args.data_split}_{self.args.data_rate}_ep{self.args.il_start}_wight_dic.pkl"), "wb") as fp:
                     pickle.dump(wight_dic, fp)
 
+        non_first_ranked_idx = []
         for idx in range(test_right.shape[0]):
             _, indices = torch.sort(distance[:, idx], descending=False)
             rank = (indices == idx).nonzero(as_tuple=False).squeeze().item()
+
+            if rank != 0:  # 如果不在第一位，则记录该 idx
+                non_first_ranked_idx.append(test_right[idx].item())
             mean_r2l += (rank + 1)
             mrr_r2l += 1.0 / (rank + 1)
             for i in range(len(top_k)):
                 if rank < top_k[i]:
                     acc_r2l[i] += 1
+
+        # with open('FBYG15K_predicted_wrong_yx.csv', mode='w', newline='') as file:
+        #     writer = csv.writer(file)
+        #     for idx in non_first_ranked_idx:
+        #         writer.writerow([idx])
         mean_l2r /= test_left.size(0)
         mean_r2l /= test_right.size(0)
         mrr_l2r /= test_left.size(0)

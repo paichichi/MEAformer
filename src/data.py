@@ -1,3 +1,4 @@
+import pandas as pd
 import torch
 import random
 import json
@@ -429,14 +430,38 @@ def load_json_embd(path):
 
 
 def load_img(logger, e_num, path):
+    # 加载图像字典
     img_dict = pickle.load(open(path, "rb"))
-    # init unknown img vector with mean and std deviation of the known's
+
+    # 初始化已知图像的均值和标准差
     imgs_np = np.array(list(img_dict.values()))
     mean = np.mean(imgs_np, axis=0)
     std = np.std(imgs_np, axis=0)
-    # img_embd = np.array([np.zeros_like(img_dict[0]) for i in range(e_num)]) # no image
-    # img_embd = np.array([img_dict[i] if i in img_dict else np.zeros_like(img_dict[0]) for i in range(e_num)])
 
-    img_embd = np.array([img_dict[i] if i in img_dict else np.random.normal(mean, std, mean.shape[0]) for i in range(e_num)])
+    # 用于记录缺失图像的 idx
+    missing_idx = []
+
+    # 处理每个实体，如果没有图像则使用均值和标准差填补
+    img_embd = []
+    print(e_num)
+    for i in range(e_num):
+        if i in img_dict:
+            img_embd.append(img_dict[i])
+        else:
+            # 如果没有图像，记录缺失的 idx
+            missing_idx.append(i)
+            # 生成一个随机的图像向量
+            img_embd.append(np.random.normal(mean, std, mean.shape[0]))
+
+    # 转换为 NumPy 数组
+    img_embd = np.array(img_embd)
+
+    # 记录缺失图像的百分比
     logger.info(f"{(100 * len(img_dict) / e_num):.2f}% entities have images")
+
+    #如果有缺失的 idx，则将其写入 CSV 文件
+    # if missing_idx:
+    #     missing_df = pd.DataFrame(missing_idx, columns=["Missing_Image_Idx"])
+    #     missing_df.to_csv('FBYG15K_missing_idx', index=False)
+
     return img_embd

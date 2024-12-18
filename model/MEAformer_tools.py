@@ -47,6 +47,7 @@ class MformerFusion(nn.Module):
         weight_norm = F.softmax(attention_pro_comb, dim=-1)
         embs = [weight_norm[:, idx].unsqueeze(1) * F.normalize(embs[idx]) for idx in range(modal_num)]
         joint_emb = torch.cat(embs, dim=1)
+        # print('weight_norm',len(weight_norm))
 
         return joint_emb, hidden_states, weight_norm
 
