@@ -188,13 +188,13 @@ class Runner:
         self.early_stop_count = self.early_stop_init
         self.stage = 0
 
-        model_path = 'MEAformer_model_parameters_FBDB15K_0.2.pth'
-        # model_path = 'MEAformer_model_parameters_FBYG15K_0.2.pth'
+        # model_path = 'MEAformer_model_parameters_FBDB15K_0.2.pth'
+        model_path = 'MEAformer_model_parameters_FBYG15K_0.2.pth'
         device = torch.device('cuda:0')
 
         self.model.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
-        train_path = 'C:/Users/96446/Desktop/MMKG/others/FBDB_batch.csv'
-        # train_path = 'C:/Users/96446/Desktop/MMKG/others/FBYG_batch.csv'
+        # train_path = 'C:/Users/96446/Desktop/MMKG/others/FBDB_batch.csv'
+        train_path = 'C:/Users/96446/Desktop/MMKG/others/FBYG_batch.csv'
 
         train_data = pd.read_csv(train_path)
 
@@ -216,7 +216,7 @@ class Runner:
             loss, output, sub_embs = self.model(train_set)
             final_emb, weight_norm = self.model.joint_emb_generat()
 
-        distance = torch.mean((final_emb[2151].view(1, -1) - final_emb) ** 2, dim=1)
+        distance = torch.mean((sub_embs[1][23776].view(1, -1) - sub_embs[1]) ** 2, dim=1)
         sorted_distance, sorted_indices = torch.sort(distance, dim=0, descending=False)
 
         with open('sorted_distances.csv', mode='w', newline='') as file:
