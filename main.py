@@ -188,13 +188,13 @@ class Runner:
         self.early_stop_count = self.early_stop_init
         self.stage = 0
 
-        # model_path = 'MEAformer_model_parameters_FBDB15K_0.2.pth'
-        model_path = 'MEAformer_model_parameters_FBYG15K_0.2.pth'
+        model_path = 'MEAformer_model_parameters_FBDB15K_0.2.pth'
+        # model_path = 'MEAformer_model_parameters_FBYG15K_0.2.pth'
         device = torch.device('cuda:0')
 
         self.model.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
-        # train_path = 'C:/Users/96446/Desktop/MMKG/others/FBDB_batch.csv'
-        train_path = 'C:/Users/96446/Desktop/MMKG/others/FBYG_batch.csv'
+        train_path = 'C:/Users/96446/Desktop/MMKG/others/FBDB_batch.csv'
+        # train_path = 'C:/Users/96446/Desktop/MMKG/others/FBYG_batch.csv'
 
         train_data = pd.read_csv(train_path)
 
@@ -216,7 +216,8 @@ class Runner:
             loss, output, sub_embs = self.model(train_set)
             final_emb, weight_norm = self.model.joint_emb_generat()
 
-        distance = torch.mean((sub_embs[1][23776].view(1, -1) - sub_embs[1]) ** 2, dim=1)
+        distance = torch.mean((sub_embs[1][6733].view(1, -1) - sub_embs[1]) ** 2, dim=1)
+        # distance = torch.mean((final_emb[6733].view(1, -1) - final_emb) ** 2, dim=1)
         sorted_distance, sorted_indices = torch.sort(distance, dim=0, descending=False)
 
         with open('sorted_distances.csv', mode='w', newline='') as file:
@@ -466,7 +467,7 @@ class Runner:
             values, indices = torch.sort(distance[idx, :], descending=False)
             rank = (indices == idx).nonzero(as_tuple=False).squeeze().item()
 
-            if rank != 0:  # 如果不在第一位，则记录该 idx
+            if rank == 0:  # 如果不在第一位，则记录该 idx
                 non_first_ranked_idx.append(test_left[idx].item())
 
             mean_l2r += (rank + 1)
@@ -478,7 +479,7 @@ class Runner:
                 indices = indices.cpu().numpy()
                 to_write.append([idx, rank, test_left_np[idx], test_right_np[idx], test_right_np[indices[0]], test_right_np[indices[1]],
                                  test_right_np[indices[2]], round(values[0].item(), 4), round(values[1].item(), 4), round(values[2].item(), 4)])
-        # with open('FBYG15K_predicted_wrong_xy.csv', mode='w', newline='') as file:
+        # with open('FBYG15K_MEA_acc_xy.csv', mode='w', newline='') as file:
         #     writer = csv.writer(file)
         #     for idx in non_first_ranked_idx:
         #         writer.writerow([idx])
@@ -504,7 +505,7 @@ class Runner:
             _, indices = torch.sort(distance[:, idx], descending=False)
             rank = (indices == idx).nonzero(as_tuple=False).squeeze().item()
 
-            if rank != 0:  # 如果不在第一位，则记录该 idx
+            if rank == 0:  # 如果不在第一位，则记录该 idx
                 non_first_ranked_idx.append(test_right[idx].item())
             mean_r2l += (rank + 1)
             mrr_r2l += 1.0 / (rank + 1)
@@ -512,7 +513,7 @@ class Runner:
                 if rank < top_k[i]:
                     acc_r2l[i] += 1
 
-        # with open('FBYG15K_predicted_wrong_yx.csv', mode='w', newline='') as file:
+        # with open('FBYG15K_MEA_acc_yx.csv', mode='w', newline='') as file:
         #     writer = csv.writer(file)
         #     for idx in non_first_ranked_idx:
         #         writer.writerow([idx])
