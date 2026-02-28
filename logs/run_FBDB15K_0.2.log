@@ -173,3 +173,58 @@ INFO - 11/24/25 21:31:48 - 0:22:56 - Ep 999 | l2r: acc of top [1, 10, 50] = [0.5
 INFO - 11/24/25 21:31:48 - 0:22:56 - Ep 999 | r2l: acc of top [1, 10, 50] = [0.5795 0.8133 0.893 ], mr = 67.658, mrr = 0.662, Loss = 72.8970
 INFO - 11/24/25 21:31:48 - 0:22:56 - min loss 72.89695167541504
 INFO - 11/24/25 21:31:48 - 0:22:56 - done!
+命令语法不正确。
+命令语法不正确。
+INFO - 02/28/26 20:21:53 - 0:00:00 - ============ Initialized logger ============
+INFO - 02/28/26 20:21:53 - 0:00:00 - The experiment will be stored in C:\Users\paichichi\Documents\data\mmkg\dump/0228-IJCAI_MEAformer_sf_0_500-1000-IL\MEAformer_FBDB15K_0.2_v1_norm_0.2
+                                     
+INFO - 02/28/26 20:21:53 - 0:00:00 - Running command: python main.py --gpu 0 --eval_epoch 50 --only_test 0 --model_name MEAformer --data_choice FBDB15K --data_split norm --data_rate '0.2' --epoch 1000 --lr '5e-4' --hidden_units '300,300,300' --save_model 0 --batch_size 3500 --semi_learn_step 5 --csls --csls_k 3 --random_seed 42 --exp_name 'IJCAI_MEAformer_sf_0_500-1000-IL' --exp_id 'v1_norm_0.2' --workers 12 --dist 0 --accumulation_steps 1 --scheduler cos --attr_dim 300 --img_dim 300 --name_dim 300 --char_dim 300 --hidden_size 300 --tau '0.1' --structure_encoder gat --num_attention_heads 1 --num_hidden_layers 1 --use_surface 0 --use_intermediate 1 --il --il_start 500 --enable_sota
+
+C:\Users\paichichi\Documents\GitHub\MEAformer\main.py:44: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  self.scaler = GradScaler()
+INFO - 02/28/26 20:21:54 - 0:00:02 - 94.56% entities have images
+INFO - 02/28/26 20:21:54 - 0:00:02 - image feature shape:(27793, 4096)
+INFO - 02/28/26 20:21:54 - 0:00:02 - #left entity : 14951, #right entity: 12842
+INFO - 02/28/26 20:21:54 - 0:00:02 - #left entity not in train set: 12382, #right entity not in train set: 10273
+INFO - 02/28/26 20:21:56 - 0:00:03 - relation feature shape:(27793, 1000)
+INFO - 02/28/26 20:21:56 - 0:00:03 - attribute feature shape:(27793, 341)
+INFO - 02/28/26 20:21:56 - 0:00:03 - -----dataset summary-----
+INFO - 02/28/26 20:21:56 - 0:00:03 - dataset:		 C:\Users\paichichi\Documents\data\mmkg\FBDB15K\norm
+INFO - 02/28/26 20:21:56 - 0:00:03 - triple num:	 691241
+INFO - 02/28/26 20:21:56 - 0:00:03 - entity num:	 27793
+INFO - 02/28/26 20:21:56 - 0:00:03 - relation num:	 1624
+INFO - 02/28/26 20:21:56 - 0:00:03 - train ill num:	 2569 	 test ill num:	 10277
+INFO - 02/28/26 20:21:56 - 0:00:03 - -------------------------
+C:\Users\paichichi\Documents\GitHub\MEAformer\src\utils.py:237: UserWarning: torch.sparse.SparseTensor(indices, values, shape, *, device=) is deprecated.  Please use torch.sparse_coo_tensor(indices, values, shape, dtype=, device=). (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\torch\csrc\utils\tensor_new.cpp:653.)
+  return torch.sparse.FloatTensor(indices, values, shape)
+INFO - 02/28/26 20:21:57 - 0:00:04 - Random init...
+INFO - 02/28/26 20:21:57 - 0:00:04 - total params num: 10576806
+INFO - 02/28/26 20:21:57 - 0:00:04 - warmup_steps: 75
+INFO - 02/28/26 20:21:57 - 0:00:04 - total_steps: 500
+INFO - 02/28/26 20:21:57 - 0:00:04 - weight_decay: 0.0005
+caonima
+loading raw data...
+27793
+getting a sparse tensor r_adj...
+Traceback (most recent call last):
+  File "C:\Users\paichichi\Documents\GitHub\MEAformer\main.py", line 638, in <module>
+    runner.run()
+  File "C:\Users\paichichi\Documents\GitHub\MEAformer\main.py", line 199, in run
+    train_data = pd.read_csv(train_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\paichichi\miniconda3\Lib\site-packages\pandas\io\parsers\readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\paichichi\miniconda3\Lib\site-packages\pandas\io\parsers\readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\paichichi\miniconda3\Lib\site-packages\pandas\io\parsers\readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\paichichi\miniconda3\Lib\site-packages\pandas\io\parsers\readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "C:\Users\paichichi\miniconda3\Lib\site-packages\pandas\io\common.py", line 873, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:/Users/paichichi/Desktop/MMKG/others/FBDB_batch.csv'
