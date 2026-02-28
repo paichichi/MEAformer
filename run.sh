@@ -1,8 +1,10 @@
+#!/bin/bash
+mkdir -p logs
 ## # w/o surface
 ## FBDB15K
 #bash run_meaformer.sh 1 FBDB15K norm 0.8 0
 #bash run_meaformer.sh 1 FBDB15K norm 0.5 0
-bash run_meaformer.sh 1 FBDB15K norm 0.2 0
+#bash run_meaformer.sh 1 FBDB15K norm 0.05 0
 ## FBYG15K
 #bash run_meaformer.sh 1 FBYG15K norm 0.8 0
 #bash run_meaformer.sh 1 FBYG15K norm 0.5 0
@@ -20,13 +22,14 @@ bash run_meaformer.sh 1 FBDB15K norm 0.2 0
 #
 ## # w/o surface
 ## FBDB15K
-#bash run_meaformer_il.sh 1 FBDB15K norm 0.8 0
-#bash run_meaformer_il.sh 1 FBDB15K norm 0.5 0
-#bash run_meaformer_il.sh 1 FBDB15K norm 0.2 0
-## FBYG15K
-#bash run_meaformer_il.sh 1 FBYG15K norm 0.8 0
-#bash run_meaformer_il.sh 1 FBYG15K norm 0.5 0
-#bash run_meaformer_il.sh 1 FBYG15K norm 0.2 0
+#bash run_meaformer_il.sh 1 FBDB15K norm 0.8 0 >> logs/run_FBDB15K_0.8.log 2>&1
+#bash run_meaformer_il.sh 1 FBDB15K norm 0.5 0 >> logs/run_FBDB15K_0.5.log 2>&1
+#bash run_meaformer_il.sh 1 FBDB15K norm 0.2 0 >> logs/run_FBDB15K_0.2.log 2>&1
+# FBYG15K
+bash run_meaformer_il.sh 1 FBYG15K norm 0.2 0 >> logs/run_FBYG15K_0.2.log 2>&1
+bash run_meaformer_il.sh 1 FBYG15K norm 0.5 0 >> logs/run_FBYG15K_0.5.log 2>&1
+bash run_meaformer_il.sh 1 FBYG15K norm 0.8 0 >> logs/run_FBYG15K_0.8.log 2>&1
+
 ## DBP15K
 #bash run_meaformer_il.sh 1 DBP15K zh_en 0.3 0
 #bash run_meaformer_il.sh 1 DBP15K ja_en 0.3 0

@@ -185,9 +185,13 @@ class cfg():
                     if not self.cfg.use_surface:
                         self.cfg.weight_decay = max(0.001, self.cfg.weight_decay)
             else:
+                # if self.cfg.data_choice == "DBP15K" or "FBYG" in self.cfg.data_choice:
+                #     self.cfg.epoch = 250
+                # else:
+                #     self.cfg.epoch = 500
                 if self.cfg.data_choice == "DBP15K" or "FBYG" in self.cfg.data_choice:
-                    self.cfg.epoch = 250
+                    self.cfg.epoch = 100
                 else:
-                    self.cfg.epoch = 500
+                    self.cfg.epoch = 100
 
         return self.cfg

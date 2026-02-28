@@ -1,6 +1,6 @@
 CUDA_VISIBLE_DEVICES=0 python  main.py \
             --gpu           0    \
-            --eval_epoch    1  \
+            --eval_epoch    50  \
             --only_test     0   \
             --model_name    MEAformer \
             --data_choice   $2 \
@@ -33,5 +33,5 @@ CUDA_VISIBLE_DEVICES=0 python  main.py \
             --use_surface   $5     \
             --use_intermediate 1   \
             --il            \
-	        --il_start      500 \
-            --enable_sota \
+	          --il_start      500 \
+            --enable_sota

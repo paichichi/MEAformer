@@ -6,7 +6,7 @@ CUDA_VISIBLE_DEVICES=0 python  main.py \
             --data_choice   $2 \
             --data_split    $3 \
             --data_rate     $4 \
-            --epoch         500 \
+            --epoch         100 \
             --lr            5e-4  \
             --hidden_units  "300,300,300" \
             --save_model    0 \
@@ -32,4 +32,4 @@ CUDA_VISIBLE_DEVICES=0 python  main.py \
             --use_surface   $5     \
             --use_intermediate 1   \
             --enable_sota \
-            --replay 0 \
+            --replay 0
